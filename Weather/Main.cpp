@@ -46,8 +46,42 @@ void get_weather_data(WeatherData& data, const std::string& api_key, const std::
 	std::string header = response.substr(0, response.find("\r\n\r\n"));
 	std::string body = response.substr(response.find("\r\n\r\n") + 4);
 
-	// Вывести заголовок и тело
-	std::cout << "Заголовок:\n" << header << "\n\nТело:\n" << body << std::endl;
+	// Разбор тела ответа
+	size_t pos = 0;
+	std::string token;
+	std::string key;
+	std::string value;
+
+	// Извлечение данных из объекта JSON и заполнение структуры WeatherData
+	while ((pos = body.find(":")) != std::string::npos) {
+		key = body.substr(0, pos); // Извлечение ключа
+		body.erase(0, pos + 1); // Удаление ключа из тела ответа
+		if (key == "\"name\"") {
+			// Извлечение местоположения
+			pos = body.find("\"");
+			token = body.substr(pos + 1, body.find("\"", pos + 1) - pos - 1);
+			data.location = token;
+		}
+		else if (key == "\"temp\"") {
+			// Извлечение температуры
+			pos = body.find(",");
+			token = body.substr(0, pos);
+			data.temperature = std::stod(token);
+		}
+		else if (key == "\"humidity\"") {
+			// Извлечение влажности
+			pos = body.find(",");
+			token = body.substr(0, pos);
+			data.humidity = std::stod(token);
+		}
+		else if (key == "\"speed\"") {
+			// Извлечение скорости ветра
+			pos = body.find(",");
+			token = body.substr(0, pos);
+			data.wind_speed = std::stod(token);
+		}
+		body.erase(0, pos + 1); // Удаление значения из тела ответа
+	}
 }
 
 void write_weather_data_to_file(const WeatherData& data, const std::string& filename) {
