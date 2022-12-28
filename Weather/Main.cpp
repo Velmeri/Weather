@@ -50,11 +50,30 @@ void get_weather_data(WeatherData& data, const std::string& api_key, const std::
 	std::cout << "Заголовок:\n" << header << "\n\nТело:\n" << body << std::endl;
 }
 
+void write_weather_data_to_file(const WeatherData& data, const std::string& filename) {
+	std::ofstream file(filename); // Открыть файл для записи
+	if (file.is_open()) { // Если файл успешно открыт
+		file << data.location << '\n'; // Записать местоположение
+		file << data.temperature << '\n'; // Записать температуру
+		file << data.humidity << '\n'; // Записать влажность
+		file << data.wind_speed; // Записать скорость ветра
+
+		file.close(); // Закрыть файл
+	}
+	else {
+		std::cout << "Не удалось открыть файл для записи." << std::endl;
+	}
+}
+
 int main() {
 	setlocale(LC_ALL, "ru"); // Я это не часто использую, так как в моей консоли кирилица выглядит так "?????? ???" - привет МИР
 
 	WeatherData A; // Создать структуру данных о погоде
-	get_weather_data(A, "b7416bbf98cf92c12098f1cb7be49211", "Odessa, ua"); // Получить данные о погоде для Одессы, Украина
+
+	std::string city;
+	std::cin >> city;
+	city += ", ua";
+	get_weather_data(A, "b7416bbf98cf92c12098f1cb7be49211", city); // Получить данные о погоде для Одессы, Украина
 
 	// Вывести данные о погоде
 	std::cout
@@ -62,6 +81,8 @@ int main() {
 		<< "\tТемпература: " << A.temperature << std::endl
 		<< "\tСкорость ветра: " << A.wind_speed << std::endl
 		<< "\tВлажность: " << A.humidity;
+
+	write_weather_data_to_file(A, "file");
 
 	return 0;
 }
